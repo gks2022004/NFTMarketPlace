@@ -1,0 +1,7 @@
+{
+"extends": ["next/babel","next/core-web-vitals"]
+}
+
+//NOTE:
+// In eslint.json, we just need to replace "extends": "next/core-web-vitals" by "extends": ["next/babel","next/core-web-vitals"]
+// Because we often get babel errors when using next/core-web-vitals

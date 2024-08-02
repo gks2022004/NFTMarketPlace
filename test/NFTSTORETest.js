@@ -93,3 +93,6 @@ describe("Retrieving NFTs", function () {
     expect(myNFTs.length).to.equal(2);
   });
 });
+
+
+// NOTE: In package.json file, use 4.3.7 version of chai, otherwise it will throw error.
