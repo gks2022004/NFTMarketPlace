@@ -30,7 +30,7 @@ const Header = () => {
     }, []);
 
     return (
-        <header className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white p-4">
+        <header className="p-4">
             <nav className="container mx-auto flex justify-between items-center">
                 <div className="text-2xl font-bold">
                     <Link href="/">
