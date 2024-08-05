@@ -45,7 +45,7 @@ const Header = () => {
                             </Link>
                         </li>
                         <li>
-                            <Link href="/list" className="hover:underline text-lg font-bold">
+                            <Link href="/sellNFT" className="hover:underline text-lg font-bold">
                                 List
                             </Link>
                         </li>

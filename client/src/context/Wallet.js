@@ -1,15 +1,25 @@
 "use client";
 import { createContext, useState, useEffect, useContext } from 'react';
+import { ethers } from 'ethers';
 
 const WalletContext = createContext();
 
 export const WalletProvider = ({ children }) => {
     const [walletAddress, setWalletAddress] = useState(null);
+    const [signer, setSigner] = useState(null);
+    const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
         if (window.ethereum) {
             window.ethereum.on('accountsChanged', (accounts) => {
                 setWalletAddress(accounts[0]);
+                setIsConnected(accounts.length > 0);
+                if (accounts.length > 0) {
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    setSigner(provider.getSigner());
+                } else {
+                    setSigner(null);
+                }
             });
         }
     }, []);
@@ -19,6 +29,9 @@ export const WalletProvider = ({ children }) => {
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 setWalletAddress(accounts[0]);
+                setIsConnected(true);
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                setSigner(provider.getSigner());
             } catch (error) {
                 console.error("User rejected the request.");
             }
@@ -28,7 +41,7 @@ export const WalletProvider = ({ children }) => {
     };
 
     return (
-        <WalletContext.Provider value={{ walletAddress, connectWallet }}>
+        <WalletContext.Provider value={{ walletAddress, connectWallet, isConnected, signer }}>
             {children}
         </WalletContext.Provider>
     );
