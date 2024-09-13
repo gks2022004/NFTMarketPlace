@@ -1,33 +1,43 @@
 "use client";
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ethers } from 'ethers';
+import { BrowserProvider } from 'ethers';
+import { useContext } from 'react';
+import { WalletContext } from '@/context/Wallet';
+
+
 
 const Header = () => {
-    const [walletAddress, setWalletAddress] = useState(null);
-    const [connButtonText, setConnButtonText] = useState('Connect Wallet');
+    const {
+        isConnected,
+        setIsConnected,
+        userAddress,
+        setUserAddress,
+        signer,
+        setSigner,
+    } = useContext(WalletContext);
 
-    const connectWalletHandler = async () => {
-        if (window.ethereum && window.ethereum.isMetaMask) {
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                setWalletAddress(accounts[0]);
-                setConnButtonText('Wallet Connected');
-            } catch (error) {
-                console.error("User rejected the request or an error occurred.");
-            }
-        } else {
-            alert('MetaMask is not installed. Please install it to use this app.');
+    const connectWallet = async () =>{
+        if(!window.ethereum){
+            alert("Please install Metamask");
         }
+        try {
+            const provider = new BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            setSigner(signer);
+            const account = await provider.send("eth_requestAccounts", []);
+            setIsConnected(true);
+            setUserAddress(account[0]);
+            const network = await provider.getNetwork();
+            const chainID = network.chainId;
+            const sepoliaNetworkId = "11155111";
+            if(chainID.toString() !== sepoliaNetworkId){
+                alert("Please connect to Sepolia network");
+                return;
+            }  
+        }   catch (error) {
+            console.error("Connect Wallet Error: ",error);
+       }
     };
-
-    useEffect(() => {
-        if (window.ethereum) {
-            window.ethereum.on('accountsChanged', (accounts) => {
-                setWalletAddress(accounts[0]);
-            });
-        }
-    }, []);
 
     return (
         <header className="p-4">
@@ -58,10 +68,10 @@ const Header = () => {
                 </div>
                 <div>
                     <button
-                        onClick={connectWalletHandler}
+                        onClick={connectWallet}
                         className="bg-purple-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
                     >
-                        {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : connButtonText}
+                        {isConnected ? `Connected: ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}` : "Connect Wallet"}
                     </button>
                 </div>
             </nav>
