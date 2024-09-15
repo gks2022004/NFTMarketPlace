@@ -54,7 +54,11 @@ export const uploadFileToIPFS = async (data) => {
       pinataURL: "https://gateway.pinata.cloud/ipfs/" + res.data.IpfsHash,
     };
   } catch (error) {
-    console.log(error);
+    if (error.response) {
+      console.error("Pinata API Error:", error.response.data);
+    } else {
+      console.error("Error:", error.message);
+    }
     return {
       success: false,
       message: error.message,

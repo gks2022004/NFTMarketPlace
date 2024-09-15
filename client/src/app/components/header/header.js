@@ -50,7 +50,7 @@ const Header = () => {
                 <div className="flex-grow">
                     <ul className="flex justify-center space-x-8">
                         <li>
-                            <Link href="/" className="hover:underline text-lg font-bold">
+                            <Link href="/marketplace" className="hover:underline text-lg font-bold">
                                 Marketplace
                             </Link>
                         </li>
