@@ -1,5 +1,5 @@
 import Image from "next/image";
-
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -10,9 +10,11 @@ export default function Home() {
         <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-4">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">Discover, Collect, and Sell Extraordinary NFTs</h1>
           <p className="text-lg md:text-2xl mb-8">The world's first and largest digital marketplace for crypto collectibles and NFTs</p>
-          <button className="bg-white text-purple-700 font-bold py-2 px-4 rounded hover:bg-purple-700 hover:text-white transition duration-300">
-            Explore Now
-          </button>
+          <Link href="/marketplace">
+            <button className="bg-white text-purple-700 font-bold py-2 px-4 rounded hover:bg-purple-700 hover:text-white transition duration-300">
+              Explore Now
+            </button>
+          </Link>
         </div>
       </section>
 
