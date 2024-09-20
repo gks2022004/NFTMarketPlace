@@ -3,7 +3,6 @@
 import { useParams, useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import MarketplaceJson from "../../marketplace.json";
-//import MarketplaceJson from "../marketplace.json";
 import { ethers } from "ethers";
 import axios from "axios";
 import GetIpfsUrlFromPinata from "@/app/utils";

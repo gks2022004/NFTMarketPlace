@@ -63,45 +63,51 @@ export default function Profile() {
   }, [isConnected]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto">
         {isConnected ? (
           <>
-            <div className="bg-white shadow-md rounded-lg p-6 mb-8">
-              <div className="mb-4">
-                <span className="font-semibold text-gray-700">Wallet Address:</span>
+            {/* Wallet Information Card */}
+            <div className="bg-white shadow-lg rounded-lg p-8 mb-10">
+              <div className="mb-6">
+                <span className="font-semibold text-gray-800">Wallet Address:</span>
                 <span className="ml-2 text-blue-600 break-all">{userAddress}</span>
               </div>
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="font-semibold text-gray-700">Number of NFTs:</span>
-                  <span className="ml-2 text-2xl font-bold text-indigo-600">{items.length}</span>
+                  <span className="font-semibold text-gray-800">Number of NFTs:</span>
+                  <span className="ml-2 text-3xl font-extrabold text-indigo-600">{items.length}</span>
                 </div>
                 <div>
-                  <span className="font-semibold text-gray-700">Total Value:</span>
-                  <span className="ml-2 text-2xl font-bold text-green-600">{totalPrice} ETH</span>
+                  <span className="font-semibold text-gray-800">Total Value:</span>
+                  <span className="ml-2 text-3xl font-extrabold text-green-500">{totalPrice} ETH</span>
                 </div>
               </div>
             </div>
+  
+            {/* NFTs Section */}
             <div>
-              <h2 className="text-3xl font-bold text-gray-800 mb-6">Your NFTs</h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-8">Your NFTs</h2>
               {items.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {items.map((value, index) => (
                     <NFTTile item={value} key={index} />
                   ))}
                 </div>
               ) : (
-                <div className="text-center text-gray-600 text-xl py-8">You don't have any NFTs...</div>
+                <div className="text-center text-gray-600 text-xl py-12">
+                  You don't have any NFTs...
+                </div>
               )}
             </div>
           </>
         ) : (
-          <div className="text-center text-2xl text-gray-600 font-semibold py-16">
+          <div className="text-center text-2xl text-gray-600 font-semibold py-20">
             You are not connected...
           </div>
         )}
       </div>
     </div>
   );
+  
 }
