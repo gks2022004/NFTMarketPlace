@@ -6,7 +6,7 @@ import { WalletContext } from '@/context/Wallet';
 
 
 
-const Header = () => {
+export const Header = () => {
     const {
         isConnected,
         setIsConnected,
@@ -79,4 +79,3 @@ const Header = () => {
     );
 };
 
-export default Header;
