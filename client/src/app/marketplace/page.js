@@ -7,6 +7,7 @@ import axios from "axios";
 import { WalletContext } from "@/context/Wallet";
 import NFTCard from "../components/nftCard/NFTCard";
 
+
 export default function Marketplace() {
   const [items, setItems] = useState([]); // Initialize items as an empty array
   const { isConnected, signer } = useContext(WalletContext);
