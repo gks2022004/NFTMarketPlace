@@ -11,7 +11,7 @@ An advanced NFT Marketplace that allows users to create, mint, buy, and sell NFT
 
 ## Tech Stack
 
-- **Frontend:** Next.js, React, Tailwind CSS (optional for styling).
+- **Frontend:** Next.js, React, Tailwind CSS.
 - **Backend:** Node.js, Ethers.js, Axios, and JWT for API calls and authentication.
 - **Smart Contracts:** Solidity for NFT minting and trading.
 - **Storage:** Pinata IPFS for decentralized file and metadata storage.
