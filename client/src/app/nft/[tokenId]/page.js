@@ -1,13 +1,14 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import MarketplaceJson from "../../marketplace.json";
 import { ethers } from "ethers";
 import axios from "axios";
 import GetIpfsUrlFromPinata from "@/app/utils";
 import Image from "next/image";
 import { WalletContext } from "@/context/Wallet";
+import toast from 'react-hot-toast';
 
 export default function NFTPage() {
   const params = useParams();
@@ -18,7 +19,7 @@ export default function NFTPage() {
   const { isConnected, userAddress, signer } = useContext(WalletContext);
   const router = useRouter();
 
-  async function getNFTData() {
+  const getNFTData = useCallback(async () => {
     if (!signer) return;
     let contract = new ethers.Contract(
       MarketplaceJson.address,
@@ -41,22 +42,27 @@ export default function NFTPage() {
       description: meta.description,
     };
     return item;
-  }
+  }, [signer, tokenId]);
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       if (!signer) return;
       try {
+        setLoading(true);
         const itemTemp = await getNFTData();
         setItem(itemTemp);
       } catch (error) {
         console.error("Error fetching NFT items:", error);
         setItem(null);
+      } finally {
+        setLoading(false);
       }
     }
 
     fetchData();
-  }, [isConnected]);
+  }, [isConnected, getNFTData, signer]);
 
   async function buyNFT() {
     try {
@@ -67,48 +73,48 @@ export default function NFTPage() {
         signer
       );
       const salePrice = ethers.parseUnits(item.price, "ether").toString();
-      setBtnContent("Processing...");
-      setmsg("Buying the NFT... Please Wait (Upto 5 mins)");
+  setBtnContent("Processing...");
+  setmsg("Buying the NFT... Please Wait (Upto 5 mins)");
+  const tId = toast.loading('Processing purchase... approve in wallet');
       let transaction = await contract.executeSale(tokenId, {
         value: salePrice,
       });
       await transaction.wait();
-      alert("You successfully bought the NFT!");
+  toast.success('You successfully bought the NFT!', { id: tId });
       setmsg("");
       setBtnContent("Buy NFT");
       router.push("/");
     } catch (e) {
       console.log("Buying Error: ", e);
+  toast.error('Buying error: ' + (e?.message || 'Unknown error'));
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12">
-      <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg p-6">
+    <div className="py-6">
+      <div className="card overflow-hidden max-w-5xl mx-auto">
         {isConnected ? (
-          <div className="flex flex-col md:flex-row items-center">
-            <div className="w-full md:w-1/2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+            <div className="">
               <Image 
                 src={item?.image} 
                 alt={item?.name} 
-                width={800} 
-                height={520} 
-                className="rounded-lg"
+                width={1200} 
+                height={800} 
+                className="rounded-md object-cover w-full h-auto"
               />
             </div>
-            <div className="w-full md:w-1/2 mt-6 md:mt-0 md:ml-6">
-              <div className="space-y-4">
-                <div className="text-xl font-bold text-gray-700">
-                  <span className="font-semibold">Name:</span> {item?.name}
+            <div className="">
+              <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">{item?.name}</h1>
+              <p className="mt-2 text-gray-600">{item?.description}</p>
+              <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+                <div className="card p-3">
+                  <div className="text-gray-500">Price</div>
+                  <div className="text-lg font-bold text-indigo-600">{item?.price} ETH</div>
                 </div>
-                <div className="text-lg text-gray-600">
-                  <span className="font-semibold">Description:</span> {item?.description}
-                </div>
-                <div className="text-lg text-gray-600">
-                  <span className="font-semibold">Price:</span> {item?.price} ETH
-                </div>
-                <div className="text-lg text-gray-600">
-                  <span className="font-semibold">Seller:</span> {item?.seller}
+                <div className="card p-3">
+                  <div className="text-gray-500">Seller</div>
+                  <div className="font-mono text-sm break-all">{item?.seller}</div>
                 </div>
               </div>
               <div className="mt-6">
@@ -120,7 +126,7 @@ export default function NFTPage() {
                 ) : (
                   <button
                     onClick={buyNFT}
-                    className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-all disabled:bg-blue-300"
+                    className="w-full btn-primary"
                     disabled={btnContent === "Processing..."}
                   >
                     {btnContent === "Processing..." && (
@@ -135,6 +141,13 @@ export default function NFTPage() {
         ) : (
           <div className="text-center text-gray-600 text-lg font-semibold">
             You are not connected...
+          </div>
+        )}
+        {loading && (
+          <div className="p-6 animate-pulse">
+            <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded" />
+            <div className="mt-4 h-6 w-1/3 bg-gray-200 dark:bg-gray-800 rounded" />
+            <div className="mt-2 h-4 w-2/3 bg-gray-200 dark:bg-gray-800 rounded" />
           </div>
         )}
       </div>

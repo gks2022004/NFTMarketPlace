@@ -5,6 +5,7 @@ import { ethers } from 'ethers';
 import { WalletContext } from '@/context/Wallet';
 import { uploadFileToIPFS, uploadJSONToIPFS } from '../pinata';
 import  marketplace  from '../marketplace.json';
+import toast from 'react-hot-toast';
 //import { Footer } from '../components/footer/Footer';
 //import Header from '../components/header/Header';
 
@@ -27,14 +28,19 @@ export default function SellNFT(){
             data.set('file', file);
             setIsUploading(true);
             updateMessage("Uploading image... Please wait");
+            const tId = toast.loading('Uploading image to IPFS...');
             const response = await uploadFileToIPFS(data);
             if (response.success === true) {
                 updateMessage("Image uploaded successfully");
                 setFileURL(response.pinataURL);
+                toast.success('Image uploaded', { id: tId });
+            } else {
+                toast.error('Failed to upload image', { id: tId });
             }
         } catch (error) {
             console.log('Error uploading file: ', error);
             updateMessage("Error uploading file: " + error.message);
+            toast.error('Error uploading image: ' + (error?.message || 'Unknown error'));
         } finally {
             setIsUploading(false);
         }
@@ -44,6 +50,7 @@ export default function SellNFT(){
         const { name, description, price } = formParams;
         if (!name || !description || !price || !fileURL) {
             updateMessage("Please enter all the fields");
+            toast('Please complete all fields and upload an image', { icon: 'ℹ️' });
             return -1;
         }
     
@@ -56,15 +63,19 @@ export default function SellNFT(){
             image: fileURL
         };
         try {
+            const tId = toast.loading('Uploading metadata...');
             const response = await uploadJSONToIPFS(nftJSON);
             if (response.success === true) {
+                toast.success('Metadata uploaded', { id: tId });
                 return response.pinataURL;
             } else {
                 updateMessage("Error uploading JSON metadata" );
+                toast.error('Failed to upload metadata', { id: tId });
             }
         } catch (error) {
             console.log("Error uploading JSON metadata:", error);
             updateMessage("Error uploading JSON metadata: " + error.message);
+            toast.error('Error uploading metadata: ' + (error?.message || 'Unknown error'));
         }
     }
 
@@ -79,6 +90,7 @@ export default function SellNFT(){
         try {
             setIsListing(true);
             updateMessage("Preparing to list NFT...");
+            const tId = toast.loading('Listing NFT... approve in wallet');
             const metadataURL = await uploadMetadataToIPFS();
             if (metadataURL === -1) return;
 
@@ -107,28 +119,26 @@ export default function SellNFT(){
             await transaction.wait();
             updateMessage("");
             updateFormParams({ name: '', description: '', price: '' });
-            alert("NFT listed successfully");
+            toast.success('NFT listed successfully', { id: tId });
             router.push('/');
         } catch (error) {
             console.error("Error listing NFT:", error);
-            alert("Error listing NFT: " + error.message);
+            toast.error('Error listing NFT: ' + (error?.message || 'Unknown error'));
         } finally {
             setIsListing(false);
         }
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-gradient-to-r from-blue-50 to-purple-100">
-            <div className="flex flex-col flex-grow items-center justify-center py-16">
-                <div className="bg-white p-10 rounded-xl shadow-2xl w-full max-w-lg">
+        <div className="py-6">
+            <div className="max-w-2xl mx-auto">
+                <div className="card p-8">
                     {isConnected ? (
                         <>
-                            <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-pink-600 mb-8 text-center">
-                                Upload your NFT
-                            </h2>
+                            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6">List your NFT</h2>
                             <form onSubmit={listNFT}>
                                 <div className="mb-6">
-                                    <label className="block text-gray-700 font-bold mb-2">NFT Name</label>
+                                    <label className="block text-gray-700 font-semibold mb-2">NFT Name</label>
                                     <input
                                         type="text"
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-black"
@@ -137,7 +147,7 @@ export default function SellNFT(){
                                     />
                                 </div>
                                 <div className="mb-6">
-                                    <label className="block text-gray-700 font-bold mb-2">NFT Description</label>
+                                    <label className="block text-gray-700 font-semibold mb-2">NFT Description</label>
                                     <textarea
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-black"
                                         value={formParams.description}
@@ -145,7 +155,7 @@ export default function SellNFT(){
                                     />
                                 </div>
                                 <div className="mb-6">
-                                    <label className="block text-gray-700 font-bold mb-2">Price (in Eth)</label>
+                                    <label className="block text-gray-700 font-semibold mb-2">Price (in ETH)</label>
                                     <input
                                         type="number"
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-black"
@@ -154,7 +164,7 @@ export default function SellNFT(){
                                     />
                                 </div>
                                 <div className="mb-6">
-                                    <label className="block text-gray-700 font-bold mb-2">Upload Image</label>
+                                    <label className="block text-gray-700 font-semibold mb-2">Upload Image</label>
                                     <input
                                         type="file"
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-black"
@@ -164,7 +174,7 @@ export default function SellNFT(){
                                 <div className="mb-4 text-center text-red-500">{message}</div>
                                 <button
                                     type="submit"
-                                    className={`w-full bg-gradient-to-r from-indigo-500 to-pink-500 text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:from-indigo-600 hover:to-pink-600 transition-all ${(isUploading || isListing) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className={`w-full btn-primary ${(isUploading || isListing) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     disabled={isUploading || isListing}
                                 >
                                     {isListing ? 'Listing...' : 'List NFT'}

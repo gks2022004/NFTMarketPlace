@@ -1,10 +1,10 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import MarketplaceJson from "../marketplace.json";
 import axios from "axios";
-import NFTTile from "../components/nftCard/NFTCard";
+import NFTTile from "@/components/nftCard/NFTCard";
 import { WalletContext } from "@/context/Wallet";
 
 export default function Profile() {
@@ -12,7 +12,7 @@ export default function Profile() {
   const [totalPrice, setTotalPrice] = useState("0");
   const { isConnected, userAddress, signer } = useContext(WalletContext);
 
-  async function getNFTitems() {
+  const getNFTitems = useCallback(async () => {
     let sumPrice = 0;
     const itemsArray = [];
     if (!signer) return { itemsArray, sumPrice };
@@ -44,34 +44,39 @@ export default function Profile() {
       sumPrice += Number(price);
     }
     return { itemsArray, sumPrice };
-  }
+  }, [signer]);
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const { itemsArray, sumPrice } = await getNFTitems();
         setItems(itemsArray);
         setTotalPrice(sumPrice.toFixed(2));
       } catch (error) {
         console.error("Error fetching NFT items:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     if (isConnected) {
       fetchData();
     }
-  }, [isConnected]);
+  }, [isConnected, getNFTitems]);
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="max-w-4xl mx-auto">
+    <div className="py-6">
+      <div className="max-w-5xl mx-auto">
         {isConnected ? (
           <>
             {/* Wallet Information Card */}
-            <div className="bg-white shadow-lg rounded-lg p-8 mb-10">
+            <div className="card p-8 mb-8">
               <div className="mb-6">
                 <span className="font-semibold text-gray-800">Wallet Address:</span>
-                <span className="ml-2 text-blue-600 break-all">{userAddress}</span>
+                <span className="ml-2 text-gray-700 break-all font-mono">{userAddress}</span>
               </div>
               <div className="flex justify-between items-center">
                 <div>
@@ -80,24 +85,34 @@ export default function Profile() {
                 </div>
                 <div>
                   <span className="font-semibold text-gray-800">Total Value:</span>
-                  <span className="ml-2 text-3xl font-extrabold text-green-500">{totalPrice} ETH</span>
+                  <span className="ml-2 text-3xl font-extrabold text-green-600">{totalPrice} ETH</span>
                 </div>
               </div>
             </div>
   
             {/* NFTs Section */}
             <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-8">Your NFTs</h2>
-              {items.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4">Your NFTs</h2>
+              {loading && items.length === 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="card overflow-hidden animate-pulse">
+                      <div className="h-48 bg-gray-200 dark:bg-gray-800" />
+                      <div className="p-4 space-y-2">
+                        <div className="h-4 w-2/3 bg-gray-200 dark:bg-gray-800 rounded" />
+                        <div className="h-3 w-5/6 bg-gray-200 dark:bg-gray-800 rounded" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : items.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {items.map((value, index) => (
                     <NFTTile item={value} key={index} />
                   ))}
                 </div>
               ) : (
-                <div className="text-center text-gray-600 text-xl py-12">
-                  You don't have any NFTs...
-                </div>
+                <div className="text-center text-gray-600 text-lg py-12">You don&apos;t have any NFTs...</div>
               )}
             </div>
           </>
