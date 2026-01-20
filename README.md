@@ -1,6 +1,6 @@
 # NFT Marketplace
 
-An advanced NFT Marketplace that allows users to create, mint, buy, and sell NFTs seamlessly. Built with Solidity, Next.js, React, and Ethers.js, this platform offers secure transactions, user-friendly interfaces, and decentralized metadata storage using Pinata IPFS.
+Advanced NFT Marketplace that allows users to create, mint, buy, and sell NFTs seamlessly. Built with Solidity, Next.js, React, and Ethers.js, this platform offers secure transactions, user-friendly interfaces, and decentralized metadata storage using Pinata IPFS.
 
 ## Features
 
